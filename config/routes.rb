@@ -277,7 +277,6 @@ Expertiza::Application.routes.draw do
       post :select_questionnaire_type
       get :toggle_access
       get :view
-      post :add_new_questions
       post :save_all_questions
       get :delete
       post :create_questionnaire
@@ -318,6 +317,7 @@ Expertiza::Application.routes.draw do
 
   resources :questions do
     collection do
+      post :add_new_questions
       get :types
     end
   end
