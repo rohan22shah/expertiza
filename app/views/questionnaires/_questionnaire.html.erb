@@ -20,9 +20,9 @@
      </tr>
   </table>
   <% if params[:action] == 'new' %>
-    <%= submit_tag 'Create', class: "btn btn-default" %>
+    <%= submit_tag 'Create', class: "btn btn-primary" %>
   <% else %>
-    <%= submit_tag 'Update', class: "btn btn-default" %>
+    <%= submit_tag 'Update', class => "btn btn-primary" %>
   <% end %>
 <% end %>
 
@@ -35,7 +35,7 @@
   <table id="question_actions_table">
     <tr>
       <td>
-        <%= form_tag :action => 'add_new_questions', :id => params[:id], :questionnaire_type => params[:model], :private => params[:private] do %>
+        <%= form_tag :controller => 'questions', :action => 'add_new_questions', :id => params[:id], :questionnaire_type => params[:model], :private => params[:private] do %>
          <p class="form-inline">
            <%= submit_tag 'Add',
                           confirm: AnswerHelper.in_active_period(params[:id]) ? "A review period is in progress. All existing reviews for the questionnaire would be deleted. Are you sure you want to continue?" : nil,
