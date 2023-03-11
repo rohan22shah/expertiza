@@ -1,5 +1,6 @@
 <%= error_messages_for 'questionnaire' %>
 
+<% if params[:action] == 'new' %>
 <%= form_for @questionnaire do %>
   <table>
     <tr>
@@ -19,7 +20,7 @@
        </td>
      </tr>
   </table>
-  <% if params[:action] == 'new' %>
+  
     <%= submit_tag 'Create', class: "btn btn-default" %>
   <% end %>
 <% end %>
@@ -60,7 +61,26 @@
     </tr>
   </table>
   
-  <%= form_tag :action => 'save_all_questions', :id => params[:id],  :questionnaire_type => params[:model], :private => params[:private] do %>
+
+  <%= form_for @questionnaire do %>
+    <table>
+      <tr>
+        <td valign="top" class="form-inline"><label for="name">Name:</label>
+          <%= text_field 'questionnaire', 'name', class: "form-control width-250"  %>
+          <%= hidden_field 'questionnaire', 'id' %>
+          <%= hidden_field 'questionnaire', 'type' %>
+        </td>
+      </tr>
+    </table>
+    <br/>
+    <table>
+      <tr class="form-inline">
+        <td><label for="min_question_score">Min item score:</label>&nbsp;<%= text_field 'questionnaire', 'min_question_score', :size=> 1, :value=>@questionnaire.min_question_score ||= 0, :class => "form-control width-40" %>&nbsp;&nbsp;</td>
+        <td><label for="max_question_score">Max item score:</label>&nbsp;<%= text_field 'questionnaire', 'max_question_score', :size=> 1, :value=>@questionnaire.max_question_score ||= 5, :class => "form-control width-40" %>&nbsp;&nbsp;</td>
+        <td><label for="questionnaire_private">Is this <%= @questionnaire.display_type %> private:</label>&nbsp;<%= select(:questionnaire, :private, [ ['no', false],['yes',  true]], {}, {class: "form-control"})%>
+        </td>
+      </tr>
+    </table>
     <table id="questions_table">
       <tr>
         <th class="head" align="center" width="30">Action</td>
@@ -76,7 +96,7 @@
         <% i += 1 %>
       <% end %>
     </table>
-    <%= submit_tag "Save #{@questionnaire.display_type.downcase} questionnaire", :name=>"save", :class => "btn btn-primary" %>
+    <%= submit_tag "Save #{@questionnaire.display_type.downcase} questionnaire", :name=>"update", :class => "btn btn-primary" %>
     <input style="margin-left:36em" type="submit" name="view_advice" value="Edit/View advice" class="btn btn-default"/>
     <hr/>
     <%= link_to 'Import Questionnaire', :controller=>'import_file', :action=>'start', :model => 'Question', :id=> @questionnaire.id, :expected_fields => 'txt, type ,seq,size, break_before' %>|
