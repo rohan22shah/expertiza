@@ -25,7 +25,6 @@ class QuestionnairesController < ApplicationController
   # questions. The name and creator are updated.
   #working fine verified
   def copy
-    puts "q_copy"
     instructor_id = session[:user].instructor_id
     @questionnaire = Questionnaire.copy_questionnaire_details(params, instructor_id)
     p_folder = TreeFolder.find_by(name: @questionnaire.display_type)
@@ -40,13 +39,11 @@ class QuestionnairesController < ApplicationController
 
   #working fine verified
   def view
-    puts "q_view"
     @questionnaire = Questionnaire.find(params[:id])
   end
 
   #working fine verified
   def new
-    puts "q_new"
     @questionnaire = Object.const_get(params[:model].split.join).new if Questionnaire::QUESTIONNAIRE_TYPES.include? params[:model].split.join
   rescue StandardError
     flash[:error] = $ERROR_INFO
@@ -54,7 +51,6 @@ class QuestionnairesController < ApplicationController
 
   #working fine verified
   def create
-    puts "q_create"
     if params[:questionnaire][:name].blank?
       flash[:error] = 'A rubric or survey must have a title.'
       redirect_to controller: 'questionnaires', action: 'new', model: params[:questionnaire][:type], private: params[:questionnaire][:private]
@@ -94,24 +90,9 @@ class QuestionnairesController < ApplicationController
     end
   end
 
-  # code not used to create questionnaire
-
-  #def create_questionnaire
-  #  puts "create_questionnaire"
-  #  @questionnaire = Object.const_get(params[:questionnaire][:type]).new(questionnaire_params)
-  #  # Create Quiz content has been moved to Quiz Questionnaire Controller
-  #  if @questionnaire.type != 'QuizQuestionnaire' # checking if it is a quiz questionnaire
-  #    @questionnaire.instructor_id = Ta.get_my_instructor(session[:user].id) if session[:user].role.name == 'Teaching Assistant'
-  #    save
-
-  #    redirect_to controller: 'tree_display', action: 'list'
-  #  end
-  #end
-
   # Edit a questionnaire
   #working fine verified
   def edit
-    puts "q_edit"
     @questionnaire = Questionnaire.find(params[:id])
     redirect_to Questionnaire if @questionnaire.nil?
     session[:return_to] = request.original_url
@@ -120,7 +101,6 @@ class QuestionnairesController < ApplicationController
   
   #code is not working fine, want to confirm with ankur whether we need to call this method as it is part of render instead save_all_questions is used
   def update
-    puts "q_update"
     # If 'Add' or 'Edit/View advice' is clicked, redirect appropriately
     if params[:add_new_questions]
       # redirect_to action: 'add_new_questions', id: params.permit(:id)[:id], question: params.permit(:new_question)[:new_question]
@@ -130,13 +110,9 @@ class QuestionnairesController < ApplicationController
     elsif params[:view_advice]
       redirect_to controller: 'advice', action: 'edit_advice', id: params[:id]
     else
-      puts "yes"
       @questionnaire = Questionnaire.find(params[:id])
-      puts "ues"
-      puts(@questionnaire)
       begin
         # Save questionnaire information
-        puts("here")
         @questionnaire.update_attributes(questionnaire_params)
         puts(questionnaire_params)
         # Save all questions
@@ -153,7 +129,6 @@ class QuestionnairesController < ApplicationController
         end
         flash[:success] = 'The questionnaire has been successfully updated!'
       rescue StandardError
-        puts "error"
         flash[:error] = $ERROR_INFO
       end
       redirect_to action: 'edit', id: @questionnaire.id.to_s.to_sym
@@ -163,7 +138,6 @@ class QuestionnairesController < ApplicationController
   # Remove a given questionnaire
   #working fine verified
   def delete
-    puts "q_delete"
     @questionnaire = Questionnaire.find(params[:id])
     if @questionnaire
       begin
@@ -206,7 +180,6 @@ class QuestionnairesController < ApplicationController
 
   # Zhewei: This method is used to add new questions when editing questionnaire.
   def add_new_questions
-    puts "q_add_new_questions"
     questionnaire_id = params[:id] unless params[:id].nil?
     # If the questionnaire is being used in the active period of an assignment, delete existing responses before adding new questions
     if AnswerHelper.check_and_delete_responses(questionnaire_id)
@@ -243,7 +216,6 @@ class QuestionnairesController < ApplicationController
 
   # save questionnaire object after create or edit
   def save
-    puts "q_save"
     @questionnaire.save!
     save_questions @questionnaire.id unless @questionnaire.id.nil? || @questionnaire.id <= 0
     undo_link("Questionnaire \"#{@questionnaire.name}\" has been updated successfully. ")
@@ -251,7 +223,6 @@ class QuestionnairesController < ApplicationController
 
   # save questions that have been added to a questionnaire
   def save_new_questions(questionnaire_id)
-    puts "save_new_questions"
     if params[:new_question]
       # The new_question array contains all the new questions
       # that should be saved to the database
@@ -271,34 +242,9 @@ class QuestionnairesController < ApplicationController
     end
   end
 
-  # delete questions from a questionnaire
-  # @param [Object] questionnaire_id
-  def delete_questions(questionnaire_id)
-    puts "delete_questions"
-    # Deletes any questions that, as a result of the edit, are no longer in the questionnaire
-    questions = Question.where('questionnaire_id = ?', questionnaire_id)
-    @deleted_questions = []
-    questions.each do |question|
-      should_delete = true
-      unless question_params.nil?
-        params[:question].each_key do |question_key|
-          should_delete = false if question_key.to_s == question.id.to_s
-        end
-      end
-
-      next unless should_delete
-
-      question.question_advices.each(&:destroy)
-      # keep track of the deleted questions
-      @deleted_questions.push(question)
-      question.destroy
-    end
-  end
-
   # Handles questions whose wording changed as a result of the edit
   # @param [Object] questionnaire_id
   def save_questions(questionnaire_id)
-    puts "q_save_questions"
     delete_questions questionnaire_id
     save_new_questions questionnaire_id
 
@@ -317,7 +263,7 @@ class QuestionnairesController < ApplicationController
   end
 
   def questionnaire_params
-    params.require(:questionnaire).permit(:name, :instructor_id, :private, :min_question_score,
+    params.permit(:name, :instructor_id, :private, :min_question_score,
                                           :max_question_score, :type, :display_type, :instruction_loc)
   end
 
