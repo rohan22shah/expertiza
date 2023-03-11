@@ -27,18 +27,21 @@ class QuestionsController < ApplicationController
 
   # Display a given question
   def show
+    puts "show_question"
     @question = Question.find(params[:id])
   end
 
   # Provide the user with the ability to define
   # a new question
   def new
+    puts "question_new"
     @question = Question.new
   end
 
   # Save a question created by the user
   # follows from new
   def create
+    puts "question_create"
     @question = Question.new(question_params[:question])
     if @question.save
       flash[:notice] = 'The question was successfully created.'
@@ -50,12 +53,14 @@ class QuestionsController < ApplicationController
 
   # edit an existing question
   def edit
+    puts "question_edit"
     @question = Question.find(params[:id])
   end
 
   # save the update to an existing question
   # follows from edit
   def update
+    puts "question_edit"
     @question = Question.find(question_params[:id])
     if @question.update_attributes(question_params[:question])
       flash[:notice] = 'The question was successfully updated.'
@@ -68,6 +73,7 @@ class QuestionsController < ApplicationController
   # Remove question from database and
   # return to list
   def destroy
+    puts "question_destroy"
     question = Question.find(params[:id])
     questionnaire_id = question.questionnaire_id
 
