@@ -281,6 +281,7 @@ Expertiza::Application.routes.draw do
       post :save_all_questions
       get :delete
       post :create_questionnaire
+        
     end
   end
 
@@ -576,6 +577,7 @@ Expertiza::Application.routes.draw do
       get :goto_bookmarkrating_rubrics
       get :list
       get :drill
+      get :confirm
     end
   end
 
