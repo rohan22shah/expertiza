@@ -215,34 +215,6 @@ class QuestionnairesController < ApplicationController
     redirect_to edit_questionnaire_path(questionnaire_id.to_sym)
   end
 
-  # Zhewei: This method is used to save all questions in current questionnaire.
-  def save_all_questions
-    questionnaire_id = params[:id]
-    begin
-      if params[:save]
-        params[:question].each_pair do |k, v|
-          @question = Question.find(k)
-          # example of 'v' value
-          # {"seq"=>"1.0", "txt"=>"WOW", "weight"=>"1", "size"=>"50,3", "max_label"=>"Strong agree", "min_label"=>"Not agree"}
-          v.each_pair do |key, value|
-            @question.send(key + '=', value) unless @question.send(key) == value
-          end
-
-          @question.save
-          flash[:success] = 'All questions have been successfully saved!'
-        end
-      end
-    rescue StandardError
-      flash[:error] = $ERROR_INFO
-    end
-
-    if params[:view_advice]
-      redirect_to controller: 'advice', action: 'edit_advice', id: params[:id]
-    elsif questionnaire_id
-      redirect_to edit_questionnaire_path(questionnaire_id.to_sym)
-    end
-  end
-
   private
 
   # save questionnaire object after create or edit
