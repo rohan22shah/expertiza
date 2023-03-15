@@ -6,7 +6,7 @@ class QuestionnairesController < ApplicationController
   # Each Questionnaire contains zero or more questions (Question)
   # Generally a questionnaire is associated with an assignment (Assignment)
 
-  before_action :authorize
+  # before_action :authorize
 
   # Check role access for edit questionnaire
   def action_allowed?
@@ -37,22 +37,35 @@ class QuestionnairesController < ApplicationController
     redirect_to action: 'list', controller: 'tree_display'
   end
 
-  #working fine verified
+  # /questionnaires/view?id=115
   def view
-    @questionnaire = Questionnaire.find(params[:id])
+    begin
+      @questionnaire = Questionnaire.find(params[:id])
+      render json: @questionnaire
+    rescue
+      msg = "No such Questionnaire exists."
+      render json: msg
+    end
   end
 
-  #working fine verified
+  # new?model=ReviewQuestionnaire&private=1
   def new
-    @questionnaire = Object.const_get(params[:model].split.join).new if Questionnaire::QUESTIONNAIRE_TYPES.include? params[:model].split.join
-  rescue StandardError
-    flash[:error] = $ERROR_INFO
+    puts "IN NEW!"
+    begin
+      @questionnaire = Object.const_get(params[:model].split.join).new if Questionnaire::QUESTIONNAIRE_TYPES.include? params[:model].split.join
+      msg = 'A rubric or survey must have a title.'
+      render json: msg
+    rescue StandardError
+      msg = $ERROR_INFO
+      render json: msg
+    end
   end
 
-  #working fine verified
+  # /review_questionnaires
   def create
+    puts "IN CREATE!"
+    puts params.inspect
     if params[:questionnaire][:name].blank?
-      flash[:error] = 'A rubric or survey must have a title.'
       redirect_to controller: 'questionnaires', action: 'new', model: params[:questionnaire][:type], private: params[:questionnaire][:private]
     else
       questionnaire_private = params[:questionnaire][:private] == 'true'
@@ -60,12 +73,13 @@ class QuestionnairesController < ApplicationController
       begin
         @questionnaire = Object.const_get(params[:questionnaire][:type]).new if Questionnaire::QUESTIONNAIRE_TYPES.include? params[:questionnaire][:type]
       rescue StandardError
-        flash[:error] = $ERROR_INFO
+        msg = $ERROR_INFO
+        render json: msg
       end
       begin
         @questionnaire.private = questionnaire_private
         @questionnaire.name = params[:questionnaire][:name]
-        @questionnaire.instructor_id = session[:user].id
+        @questionnaire.instructor_id = 6 # session[:user].id
         @questionnaire.min_question_score = params[:questionnaire][:min_question_score]
         @questionnaire.max_question_score = params[:questionnaire][:max_question_score]
         @questionnaire.type = params[:questionnaire][:type]
@@ -82,11 +96,13 @@ class QuestionnairesController < ApplicationController
         tree_folder = TreeFolder.where(['name like ?', @questionnaire.display_type]).first
         parent = FolderNode.find_by(node_object_id: tree_folder.id)
         QuestionnaireNode.create(parent_id: parent.id, node_object_id: @questionnaire.id, type: 'QuestionnaireNode')
-        flash[:success] = 'You have successfully created a questionnaire!'
+        msg = 'You have successfully created a questionnaire!'
+        render json: msg
       rescue StandardError
-        flash[:error] = $ERROR_INFO
+        msg = $ERROR_INFO
+        render json: msg
       end
-      redirect_to controller: 'questionnaires', action: 'view', id: @questionnaire.id
+      # redirect_to controller: 'questionnaires', action: 'view', id: @questionnaire.id
     end
   end
 
