@@ -22,22 +22,6 @@ class QuestionnairesController < ApplicationController
     end
   end
 
-  # Create a clone of the given questionnaire, copying all associated
-  # questions. The name and creator are updated.
-  #working fine verified
-  def copy
-    # <Auth code add later>
-    # instructor_id = session[:user].instructor_id
-    instructor_id = 6
-    @questionnaire = Questionnaire.copy_questionnaire_details(params, instructor_id)
-    p_folder = TreeFolder.find_by(name: @questionnaire.display_type)
-    parent = FolderNode.find_by(node_object_id: p_folder.id)
-    QuestionnaireNode.find_or_create_by(parent_id: parent.id, node_object_id: @questionnaire.id)
-    render json: "Copy of questionnaire #{@questionnaire.name} has been created successfully."
-  rescue StandardError
-    render json: 'The questionnaire was not able to be copied. Please check the original course for missing information.' + $ERROR_INFO.to_s
-  end
-
   # GET on /questionnaires
   def index
     @questionnaires = Questionnaire.order(:id)
@@ -55,20 +39,7 @@ class QuestionnairesController < ApplicationController
     end
   end
 
-  # new?model=ReviewQuestionnaire&private=1
-  def new
-    puts "IN NEW!"
-    begin
-      @questionnaire = Object.const_get(params[:model].split.join).new if Questionnaire::QUESTIONNAIRE_TYPES.include? params[:model].split.join
-      msg = 'A rubric or survey must have a title.'
-      render json: msg
-    rescue StandardError
-      msg = $ERROR_INFO
-      render json: msg
-    end
-  end
-
-  # /review_questionnaires
+  # POST on /questionnaires
   def create
     puts "IN CREATE!"
     puts params.inspect
@@ -120,6 +91,28 @@ class QuestionnairesController < ApplicationController
     session[:return_to] = request.original_url
   end
 
+  # Remove a given questionnaire
+  def destroy
+    @questionnaire = Questionnaire.find(params[:id])
+    if @questionnaire
+      begin
+        name = @questionnaire.name
+        questions = @questionnaire.questions
+        questions.each do |question|
+          advices = question.question_advices
+          advices.each(&:delete)
+          question.delete
+        end
+        questionnaire_node = @questionnaire.questionnaire_node
+        questionnaire_node.delete if !questionnaire_node.nil?
+        @questionnaire.delete
+        render json: "The questionnaire \"#{name}\" has been successfully deleted."
+      rescue StandardError => e
+        render json: e.message
+      end
+    end
+  end
+
   def update
     # If 'Add' or 'Edit/View advice' is clicked, redirect appropriately
       @questionnaire = Questionnaire.find(params[:id])
@@ -145,26 +138,20 @@ class QuestionnairesController < ApplicationController
       end
   end
 
-  # Remove a given questionnaire
-  def destroy
-    @questionnaire = Questionnaire.find(params[:id])
-    if @questionnaire
-      begin
-        name = @questionnaire.name
-        questions = @questionnaire.questions
-        questions.each do |question|
-          advices = question.question_advices
-          advices.each(&:delete)
-          question.delete
-        end
-        questionnaire_node = @questionnaire.questionnaire_node
-        questionnaire_node.delete if !questionnaire_node.nil?
-        @questionnaire.delete
-        render json: "The questionnaire \"#{name}\" has been successfully deleted."
-      rescue StandardError => e
-        render json: e.message
-      end
-    end
+  # Create a clone of the given questionnaire, copying all associated
+  # questions. The name and creator are updated.
+  #working fine verified
+  def copy
+    # <Auth code add later>
+    # instructor_id = session[:user].instructor_id
+    instructor_id = 6
+    @questionnaire = Questionnaire.copy_questionnaire_details(params, instructor_id)
+    p_folder = TreeFolder.find_by(name: @questionnaire.display_type)
+    parent = FolderNode.find_by(node_object_id: p_folder.id)
+    QuestionnaireNode.find_or_create_by(parent_id: parent.id, node_object_id: @questionnaire.id)
+    render json: "Copy of questionnaire #{@questionnaire.name} has been created successfully."
+  rescue StandardError
+    render json: 'The questionnaire was not able to be copied. Please check the original course for missing information.' + $ERROR_INFO.to_s
   end
 
   # Toggle the access permission for this assignment from public to private, or vice versa
