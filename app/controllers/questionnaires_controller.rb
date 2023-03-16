@@ -7,6 +7,7 @@ class QuestionnairesController < ApplicationController
   # Generally a questionnaire is associated with an assignment (Assignment)
 
   # before_action :authorize
+  skip_before_action :verify_authenticity_token
 
   # Check role access for edit questionnaire
   def action_allowed?
@@ -144,36 +145,25 @@ class QuestionnairesController < ApplicationController
   end
 
   # Remove a given questionnaire
-  #working fine verified
-  def delete
+  def destroy
     @questionnaire = Questionnaire.find(params[:id])
     if @questionnaire
       begin
         name = @questionnaire.name
-        # if this rubric is used by some assignment, flash error
-        unless @questionnaire.assignments.empty?
-          raise "The assignment <b>#{@questionnaire.assignments.first.try(:name)}</b> uses this questionnaire. Are sure you want to delete the assignment?"
-        end
-
         questions = @questionnaire.questions
-        # if this rubric had some answers, flash error
-        questions.each do |question|
-          raise 'There are responses based on this rubric, we suggest you do not delete it.' unless question.answers.empty?
-        end
         questions.each do |question|
           advices = question.question_advices
           advices.each(&:delete)
           question.delete
         end
         questionnaire_node = @questionnaire.questionnaire_node
-        questionnaire_node.delete
+        questionnaire_node.delete if !questionnaire_node.nil?
         @questionnaire.delete
-        undo_link("The questionnaire \"#{name}\" has been successfully deleted.")
+        render json: "The questionnaire \"#{name}\" has been successfully deleted."
       rescue StandardError => e
-        flash[:error] = e.message
+        render json: e.message
       end
     end
-    redirect_to action: 'list', controller: 'tree_display'
   end
 
   # Toggle the access permission for this assignment from public to private, or vice versa

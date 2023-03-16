@@ -1,6 +1,6 @@
 class QuestionsController < ApplicationController
   include AuthorizationHelper
-
+  skip_before_action :verify_authenticity_token
   # A question is a single entry within a questionnaire
   # Questions provide a way of scoring an object
   # based on either a numeric value or a true/false
@@ -8,8 +8,16 @@ class QuestionsController < ApplicationController
 
   # Default action, same as list
   def index
-    list
-    render action: 'list'
+    begin
+      @questions = Question.paginate(page: params[:page], per_page: 10)
+      respond_to do |format|
+        format.json { render json: @questions, status: :ok }
+        format.html { render action: 'list' }
+      end
+    rescue StandardError
+      msg = $ERROR_INFO
+      render json: msg
+    end
   end
 
   def action_allowed?
@@ -78,15 +86,16 @@ class QuestionsController < ApplicationController
     questionnaire_id = question.questionnaire_id
 
     if AnswerHelper.check_and_delete_responses(questionnaire_id)
-      flash[:success] = 'You have successfully deleted the question. Any existing reviews for the questionnaire have been deleted!'
+      msg = 'You have successfully deleted the question. Any existing reviews for the questionnaire have been deleted!'
     else
-      flash[:success] = 'You have successfully deleted the question!'
+      msg = 'You have successfully deleted the question!'
     end
 
     begin
       question.destroy
+      render json: msg
     rescue StandardError
-      flash[:error] = $ERROR_INFO
+      render json: $ERROR_INFO
     end
     redirect_to edit_questionnaire_path(questionnaire_id.to_s.to_sym)
   end

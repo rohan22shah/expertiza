@@ -59,10 +59,10 @@ class Questionnaire < ApplicationRecord
   end
 
   def delete
-    assignments.each do |assignment|
-      raise "The assignment #{assignment.name} uses this questionnaire.
-            Do you want to <A href='../assignment/delete/#{assignment.id}'>delete</A> the assignment?"
-    end
+    # assignments.each do |assignment|
+    #   raise "The assignment #{assignment.name} uses this questionnaire.
+    #         Do you want to <A href='../assignment/delete/#{assignment.id}'>delete</A> the assignment?"
+    # end
 
     questions.each(&:delete)
 

@@ -270,17 +270,11 @@ Expertiza::Application.routes.draw do
     end
   end
 
-  resources :questionnaires, only: %i[new create edit update] do
+  resources :questionnaires, only: %i[new create edit update destroy] do
     collection do
       get :copy
-      get :select_questionnaire_type
-      post :select_questionnaire_type
       get :toggle_access
       get :view
-      post :save_all_questions
-      get :delete
-      post :create_questionnaire
-        
     end
   end
 
