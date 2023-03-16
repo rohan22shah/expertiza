@@ -311,7 +311,7 @@ Expertiza::Application.routes.draw do
 
   resources :questions do
     collection do
-      post :add_new_questions
+      #put 'update/:id', to: 'questions#update', as: 'update'
       get :types
     end
   end
