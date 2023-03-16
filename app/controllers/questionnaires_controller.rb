@@ -35,7 +35,7 @@ class QuestionnairesController < ApplicationController
       render json: @questionnaire
     rescue
       msg = "No such Questionnaire exists."
-      render json: msg
+      render json: msg, status: :not_found
     end
   end
 
