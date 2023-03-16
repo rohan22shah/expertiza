@@ -26,20 +26,26 @@ class QuestionnairesController < ApplicationController
   # questions. The name and creator are updated.
   #working fine verified
   def copy
-    instructor_id = session[:user].instructor_id
+    # <Auth code add later>
+    # instructor_id = session[:user].instructor_id
+    instructor_id = 6
     @questionnaire = Questionnaire.copy_questionnaire_details(params, instructor_id)
     p_folder = TreeFolder.find_by(name: @questionnaire.display_type)
     parent = FolderNode.find_by(node_object_id: p_folder.id)
     QuestionnaireNode.find_or_create_by(parent_id: parent.id, node_object_id: @questionnaire.id)
-    undo_link("Copy of questionnaire #{@questionnaire.name} has been created successfully.")
-    redirect_to controller: 'questionnaires', action: 'view', id: @questionnaire.id
+    render json: "Copy of questionnaire #{@questionnaire.name} has been created successfully."
   rescue StandardError
-    flash[:error] = 'The questionnaire was not able to be copied. Please check the original course for missing information.' + $ERROR_INFO.to_s
-    redirect_to action: 'list', controller: 'tree_display'
+    render json: 'The questionnaire was not able to be copied. Please check the original course for missing information.' + $ERROR_INFO.to_s
   end
 
-  # /questionnaires/view?id=115
-  def view
+  # GET on /questionnaires
+  def index
+    @questionnaires = Questionnaire.order(:id)
+    render json: @questionnaires
+  end
+
+  # /questionnaires/15
+  def show
     begin
       @questionnaire = Questionnaire.find(params[:id])
       render json: @questionnaire
@@ -97,8 +103,7 @@ class QuestionnairesController < ApplicationController
         tree_folder = TreeFolder.where(['name like ?', @questionnaire.display_type]).first
         parent = FolderNode.find_by(node_object_id: tree_folder.id)
         QuestionnaireNode.create(parent_id: parent.id, node_object_id: @questionnaire.id, type: 'QuestionnaireNode')
-        msg = 'You have successfully created a questionnaire!'
-        render json: msg
+        render json: @questionnaire
       rescue StandardError
         msg = $ERROR_INFO
         render json: msg
@@ -115,8 +120,6 @@ class QuestionnairesController < ApplicationController
     session[:return_to] = request.original_url
   end
 
-  
-  #code is not working fine, want to confirm with ankur whether we need to call this method as it is part of render instead save_all_questions is used
   def update
     # If 'Add' or 'Edit/View advice' is clicked, redirect appropriately
       @questionnaire = Questionnaire.find(params[:id])
@@ -136,12 +139,10 @@ class QuestionnairesController < ApplicationController
             @question.save
           end
         end
-        flash[:success] = 'The questionnaire has been successfully updated!'
+        render json: 'The questionnaire has been successfully updated!'
       rescue StandardError
-        flash[:error] = $ERROR_INFO
+        render json: $ERROR_INFO
       end
-      redirect_to action: 'edit', id: @questionnaire.id.to_s.to_sym
-
   end
 
   # Remove a given questionnaire
@@ -172,8 +173,7 @@ class QuestionnairesController < ApplicationController
     @questionnaire.private = !@questionnaire.private
     @questionnaire.save
     @access = @questionnaire.private == true ? 'private' : 'public'
-    undo_link("The questionnaire \"#{@questionnaire.name}\" has been successfully made #{@access}. ")
-    redirect_to controller: 'tree_display', action: 'list'
+    render json: "The questionnaire \"#{@questionnaire.name}\" has been successfully made #{@access}. "
   end
 
   private

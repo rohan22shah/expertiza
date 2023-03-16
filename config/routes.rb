@@ -270,11 +270,11 @@ Expertiza::Application.routes.draw do
     end
   end
 
-  resources :questionnaires, only: %i[new create edit update destroy] do
+  resources :questionnaires do
     collection do
-      get :copy
-      get :toggle_access
-      get :view
+      put 'update/:id', to: 'questionnaires#update', as: 'update'
+      post 'copy/:id', to: 'questionnaires#copy', as: 'copy'
+      get 'toggle_access/:id', to: 'questionnaires#toggle_access', as: 'toggle_access'
     end
   end
 
