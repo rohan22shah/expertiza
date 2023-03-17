@@ -55,9 +55,9 @@ class QuestionsController < ApplicationController
     question.alternatives = '0|1|2|3|4|5' if question.is_a? Dropdown
     question.size = '60, 5' if question.is_a? TextArea
     question.size = '30' if question.is_a? TextField
-    
-    question.save
-    render json: msg + question.inspect
+    begin
+      question.save
+      render json: msg + question.inspect
     rescue StandardError
       render json: $ERROR_INFO, status: :not_found
     end
@@ -77,8 +77,8 @@ class QuestionsController < ApplicationController
     end
     
     begin
-        question.destroy
-        render json: msg
+      question.destroy
+      render json: msg
     rescue StandardError
       render json: $ERROR_INFO, status: :not_found
     end
