@@ -272,7 +272,6 @@ Expertiza::Application.routes.draw do
 
   resources :questionnaires do
     collection do
-      put 'update/:id', to: 'questionnaires#update', as: 'update'
       post 'copy/:id', to: 'questionnaires#copy', as: 'copy'
       get 'toggle_access/:id', to: 'questionnaires#toggle_access', as: 'toggle_access'
     end
@@ -311,7 +310,6 @@ Expertiza::Application.routes.draw do
 
   resources :questions do
     collection do
-      #put 'update/:id', to: 'questions#update', as: 'update'
       get :types
     end
   end
