@@ -64,11 +64,6 @@ class QuestionsController < ApplicationController
     end
   end
 
-  # edit an existing question
-  def edit
-    puts "question_edit"
-    @question = Question.find(params[:id])
-  end
 
   # Remove question from database and
   # return to list
