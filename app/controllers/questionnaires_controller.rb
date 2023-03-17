@@ -28,7 +28,7 @@ class QuestionnairesController < ApplicationController
     render json: @questionnaires
   end
 
-  # /questionnaires/15
+  # GET on /questionnaires/:id
   def show
     begin
       @questionnaire = Questionnaire.find(params[:id])
@@ -41,8 +41,6 @@ class QuestionnairesController < ApplicationController
 
   # POST on /questionnaires
   def create
-    puts "IN CREATE!"
-    puts params.inspect
     if params[:questionnaire][:name].blank?
       redirect_to controller: 'questionnaires', action: 'new', model: params[:questionnaire][:type], private: params[:questionnaire][:private]
     else
@@ -83,15 +81,8 @@ class QuestionnairesController < ApplicationController
     end
   end
 
-  # Edit a questionnaire
-  #working fine verified
-  def edit
-    @questionnaire = Questionnaire.find(params[:id])
-    redirect_to Questionnaire if @questionnaire.nil?
-    session[:return_to] = request.original_url
-  end
-
   # Remove a given questionnaire
+  # DELETE on /questionnaires/:id
   def destroy
     @questionnaire = Questionnaire.find(params[:id])
     if @questionnaire
@@ -113,13 +104,13 @@ class QuestionnairesController < ApplicationController
     end
   end
 
+  # PUT on /questionnaires/:id
   def update
     # If 'Add' or 'Edit/View advice' is clicked, redirect appropriately
       @questionnaire = Questionnaire.find(params[:id])
       begin
         # Save questionnaire information
         @questionnaire.update_attributes(questionnaire_params)
-        puts(questionnaire_params)
         # Save all questions
         unless params[:question].nil?
           params[:question].each_pair do |k, v|
@@ -140,7 +131,7 @@ class QuestionnairesController < ApplicationController
 
   # Create a clone of the given questionnaire, copying all associated
   # questions. The name and creator are updated.
-  #working fine verified
+  # POST on /questionnaires/copy/:id
   def copy
     # <Auth code add later>
     # instructor_id = session[:user].instructor_id
@@ -155,6 +146,7 @@ class QuestionnairesController < ApplicationController
   end
 
   # Toggle the access permission for this assignment from public to private, or vice versa
+  # GET on /questionnaires/toggle_access/:id
   def toggle_access
     @questionnaire = Questionnaire.find(params[:id])
     @questionnaire.private = !@questionnaire.private
@@ -167,10 +159,5 @@ class QuestionnairesController < ApplicationController
   def questionnaire_params
     params.permit(:name, :instructor_id, :private, :min_question_score,
                                           :max_question_score, :type, :display_type, :instruction_loc)
-  end
-
-  def question_params
-    params.require(:question).permit(:txt, :weight, :questionnaire_id, :seq, :type, :size,
-                                     :alternatives, :break_before, :max_label, :min_label)
   end
 end

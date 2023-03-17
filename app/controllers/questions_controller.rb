@@ -21,7 +21,7 @@ class QuestionsController < ApplicationController
     end
   end
 
-  # GET on /questions/15
+  # GET on /questions/:id
   def show
     begin
       @question = Question.find(params[:id])
@@ -34,6 +34,7 @@ class QuestionsController < ApplicationController
 
   # Save a question created by the user
   # follows from new
+  # POST on /questions
   def create
     questionnaire_id = params[:id] unless params[:id].nil?
     # If the questionnaire is being used in the active period of an assignment, delete existing responses before adding new questions
@@ -62,16 +63,10 @@ class QuestionsController < ApplicationController
     end
   end
 
-  # edit an existing question
-  def edit
-    puts "question_edit"
-    @question = Question.find(params[:id])
-  end
-
   # Remove question from database and
   # return to list
+  # DELETE on /questions/:id
   def destroy
-    puts "question_destroy"
     question = Question.find(params[:id])
     questionnaire_id = question.questionnaire_id
 
@@ -91,17 +86,22 @@ class QuestionsController < ApplicationController
 
   # save the update to an existing question
   # follows from edit
+  # PUT on /questions/:id
   def update
-    @question = Question.find(question_params[:id])
+    @question = Question.find(params[:id])
     begin
-      @question.update_attributes(question_params[:question])
-      render json: 'The question was successfully updated.'
+      if @question.update(question_params)
+        render json: 'The question was successfully updated.'
+      else
+        render json: @question.errors.full_messages
+      end
     rescue StandardError
       render json: $ERROR_INFO
     end
   end
 
   # required for answer tagging
+  # GET on /questions/types
   def types
     types = Question.distinct.pluck(:type)
     render json: types.to_a
@@ -110,6 +110,7 @@ class QuestionsController < ApplicationController
   private
 
   def question_params
-    params.permit(:id, :question)
+    params.permit(:txt, :weight, :questionnaire_id, :seq, :type, :size,
+                                     :alternatives, :break_before, :max_label, :min_label)
   end
 end
