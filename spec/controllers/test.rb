@@ -111,7 +111,6 @@ describe QuestionnairesController do
       put :update, params: { id: questionnaire.id, questionnaire: { name: 'new_name', min_question_score: 1} }
 
       questionnaire.reload
-      puts JSON.parse(questionnaire)
       expect(questionnaire.name).to eq('new_name')
       expect(questionnaire.min_question_score).to eq(1)
       
