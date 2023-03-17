@@ -84,7 +84,11 @@ class QuestionnairesController < ApplicationController
   # Remove a given questionnaire
   # DELETE on /questionnaires/:id
   def destroy
+    begin
     @questionnaire = Questionnaire.find(params[:id])
+    rescue
+      render json: $ERROR_INFO
+    end
     if @questionnaire
       begin
         name = @questionnaire.name
@@ -107,9 +111,9 @@ class QuestionnairesController < ApplicationController
   # PUT on /questionnaires/:id
   def update
     # If 'Add' or 'Edit/View advice' is clicked, redirect appropriately
-      @questionnaire = Questionnaire.find(params[:id])
       begin
         # Save questionnaire information
+        @questionnaire = Questionnaire.find(params[:id])
         @questionnaire.update_attributes(questionnaire_params)
         # Save all questions
         unless params[:question].nil?
@@ -126,6 +130,7 @@ class QuestionnairesController < ApplicationController
         render json: 'The questionnaire has been successfully updated!'
       rescue StandardError
         render json: $ERROR_INFO
+
       end
   end
 
