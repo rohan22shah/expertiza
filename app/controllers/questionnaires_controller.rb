@@ -85,7 +85,7 @@ class QuestionnairesController < ApplicationController
   # DELETE on /questionnaires/:id
   def destroy
     begin
-    @questionnaire = Questionnaire.find(params[:id])
+      @questionnaire = Questionnaire.find(params[:id])
     rescue
       render json: $ERROR_INFO
     end
