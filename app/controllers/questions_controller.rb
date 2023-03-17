@@ -94,10 +94,13 @@ class QuestionsController < ApplicationController
   # save the update to an existing question
   # follows from edit
   def update
-    @question = Question.find(question_params[:id])
+    @question = Question.find(params[:id])
     begin
-      @question.update_attributes(question_params[:question])
-      render json: 'The question was successfully updated.'
+      if @question.update(question_params)
+        render json: 'The question was successfully updated.'
+      else
+        render json: @question.errors.full_messages
+      end
     rescue StandardError
       render json: $ERROR_INFO
     end
