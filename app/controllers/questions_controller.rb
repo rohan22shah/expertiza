@@ -57,7 +57,7 @@ class QuestionsController < ApplicationController
     question.size = '30' if question.is_a? TextField
     begin
       question.save
-      render json: msg + question.inspect
+      render json: question, status: :created
     rescue StandardError
       render json: $ERROR_INFO, status: :not_found
     end
