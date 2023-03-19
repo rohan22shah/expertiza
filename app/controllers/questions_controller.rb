@@ -36,6 +36,7 @@ class QuestionsController < ApplicationController
   # follows from new
   # POST on /questions
   def create
+
     questionnaire_id = params[:id] unless params[:id].nil?
     # If the questionnaire is being used in the active period of an assignment, delete existing responses before adding new questions
     if AnswerHelper.check_and_delete_responses(questionnaire_id)
@@ -56,8 +57,10 @@ class QuestionsController < ApplicationController
     question.size = '60, 5' if question.is_a? TextArea
     question.size = '30' if question.is_a? TextField
     begin
+    
       question.save
       render json: question, status: :created
+
     rescue StandardError
       render json: $ERROR_INFO, status: :not_found
     end
