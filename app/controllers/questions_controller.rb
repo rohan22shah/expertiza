@@ -10,6 +10,7 @@ class QuestionsController < ApplicationController
     current_user_has_ta_privileges?
   end
 
+  # Get list of all the questions
   # GET on /questions
   def index
     begin
@@ -21,6 +22,7 @@ class QuestionsController < ApplicationController
     end
   end
 
+  #Show a given question
   # GET on /questions/:id
   def show
     begin
@@ -32,8 +34,7 @@ class QuestionsController < ApplicationController
     end
   end
 
-  # Save a question created by the user
-  # follows from new
+  # Create a new question
   # POST on /questions
   def create
 
@@ -66,8 +67,7 @@ class QuestionsController < ApplicationController
     end
   end
 
-  # Remove question from database and
-  # return to list
+  # Remove question
   # DELETE on /questions/:id
   def destroy
     question = Question.find(params[:id])
@@ -88,7 +88,6 @@ class QuestionsController < ApplicationController
   end
 
   # save the update to an existing question
-  # follows from edit
   # PUT on /questions/:id
   def update
     @question = Question.find(params[:id])
