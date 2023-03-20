@@ -6,7 +6,7 @@ class QuestionnairesController < ApplicationController
   # Each Questionnaire contains zero or more questions (Question)
   # Generally a questionnaire is associated with an assignment (Assignment)
 
-  # before_action :authorize
+  
   skip_before_action :verify_authenticity_token
 
   # Check role access for edit questionnaire
