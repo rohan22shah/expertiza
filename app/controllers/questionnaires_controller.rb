@@ -22,12 +22,14 @@ class QuestionnairesController < ApplicationController
     end
   end
 
+  #List all the questionnaires
   # GET on /questionnaires
   def index
     @questionnaires = Questionnaire.order(:id)
     render json: @questionnaires
   end
-
+  
+  #Show a given questionnaire
   # GET on /questionnaires/:id
   def show
     begin
@@ -38,7 +40,8 @@ class QuestionnairesController < ApplicationController
       render json: msg, status: :not_found
     end
   end
-
+  
+  #Create a given questionnaire
   # POST on /questionnaires
   def create
     if params[:questionnaire][:name].blank?
@@ -105,6 +108,7 @@ class QuestionnairesController < ApplicationController
     end
   end
 
+  #Update a given questionnaire
   # PUT on /questionnaires/:id
   def update
     # If 'Add' or 'Edit/View advice' is clicked, redirect appropriately
